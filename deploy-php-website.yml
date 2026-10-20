@@ -1,0 +1,35 @@
+---
+- name: Deploy PHP Website to Apache
+  hosts: localhost
+  connection: local
+  become: yes
+  tasks:
+    - name: Install Apache (httpd) and PHP packages
+      dnf:
+        name:
+          - httpd
+          - php
+        state: present
+
+    - name: Ensure Apache service is started and enabled at boot
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: Copy website files from Jenkins workspace to Apache web root
+      copy:
+        src: "{{ playbook_dir }}/" 
+        dest: /var/www/html/
+        remote_src: no
+        owner: apache
+        group: apache
+        mode: '0755'
+
+    - name: Ensure correct file permissions for web content
+      file:
+        path: /var/www/html
+        state: directory
+        recurse: yes
+        owner: apache
+        group: apache
