@@ -1,0 +1,31 @@
+---
+- name: Cleanup PHP Website and Apache
+  hosts: localhost
+  connection: local
+  become: yes
+  tasks:
+    - name: Ensure Apache service is stopped and disabled
+      service:
+        name: httpd
+        state: stopped
+        enabled: no
+
+    - name: Remove Apache (httpd) and PHP packages
+      dnf:
+        name:
+          - httpd
+          - php
+        state: absent
+
+    - name: Remove all website files from Apache web root
+      file:
+        path: /var/www/html
+        state: absent
+
+    - name: Recreate an empty /var/www/html directory with standard permissions
+      file:
+        path: /var/www/html
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
